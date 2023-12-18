@@ -1,7 +1,7 @@
 <template>
   <v-app v-if="myUser !== undefined && isNotEmpty()">
     <NavigationLayout />
-    <v-main>
+    <v-main style="background-color: #f5f5f5">
       <router-view />
     </v-main>
   </v-app>
@@ -32,3 +32,19 @@ export default defineComponent({
   },
 });
 </script>
+<style>
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+.v-container {
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+</style>

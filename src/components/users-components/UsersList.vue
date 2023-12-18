@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  <v-table v-if="users && users.result.length > 0">
-    <thead style="background-color: #bc9878; color: white">
+  <!-- <v-table v-if="users && users.result.length > 0">
+    <thead>
       <tr>
         <th class="text-left text-subtitle-1">Nome</th>
         <th class="text-left text-subtitle-1">Email</th>
@@ -59,7 +59,103 @@
       :length="users.totalPages"
       rounded="circle"
     ></v-pagination>
+  </div> -->
+  <div
+    class="d-flex justify-space-between bg-white mb-1 mt-1 pa-5"
+    style="width: 100%"
+  >
+    <div class="text-h6">Consulta de usuários</div>
+    <v-btn
+      class="text-none text-subtitle-1"
+      color="primary"
+      @click="callCreate(true)"
+      variant="flat"
+    >
+      Cadastrar usuário
+    </v-btn>
   </div>
+
+  <div
+    class="d-flex justify-space-between bg-white mb-1 mt-1 pa-5"
+    style="width: 100%"
+  >
+    <v-text-field
+      v-model="filter.params.nameLike"
+      clearable
+      density="compact"
+      hide-details
+      placeholder="Pesquise o nome do usuário"
+      append-inner-icon="mdi-magnify"
+      style="max-width: 300px"
+      variant="outlined"
+    />
+    <v-btn border class="text-none" variant="text" style="font-weight: 400">
+      Exibir filtros
+    </v-btn>
+  </div>
+  <v-data-table
+    v-if="users && users.result.length > 0"
+    :headers="headers"
+    :items="users.result"
+    item-key="users"
+    :items-per-page="users.itensPerPage"
+    v-model:page="users.currentPage"
+    fixed-header
+    height="300"
+  >
+    <template v-slot:item="{ item }: any">
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.email }}</td>
+        <td>{{ formatDate(item.createdAt) }}</td>
+        <td v-if="$hasPermissions(['update', 'delete'], 'users')">
+          <v-icon
+            size="small"
+            class="me-2"
+            v-if="$hasPermission('update', 'users')"
+            @click="callUpdate(item.id)"
+          >
+            mdi-pencil
+          </v-icon>
+          <v-icon
+            size="small"
+            v-if="$hasPermission('delete', 'users')"
+            @click="callDelete(item.id)"
+          >
+            mdi-delete
+          </v-icon>
+        </td>
+      </tr>
+    </template>
+    <!-- <template v-slot:bottom>
+      <div class="d-flex justify-space-between">
+        <div class="pt-2 align-center pl-2">
+          <v-text-field
+            :model-value="users.itensPerPage"
+            class="pa-2"
+            hide-details
+            density="compact"
+            style="max-width: 300px"
+            min="-1"
+            max="15"
+            type="number"
+            variant="outlined"
+            @update:model-value="users.itensPerPage = parseInt($event, 10)"
+          ></v-text-field>
+        </div>
+        <div class="pt-2">
+          <v-pagination
+            class=""
+            v-model="users.currentPage"
+            :total-visible="3"
+            v-on:next="onPageChange"
+            v-on:prev="onPageChange"
+            :length="users.totalPages"
+          ></v-pagination>
+        </div>
+      </div>
+    </template> -->
+  </v-data-table>
 </template>
 
 <script lang="ts">
@@ -81,6 +177,9 @@ export default defineComponent({
     callUpdatePassword(id: string) {
       return id;
     },
+    callCreate(value: boolean) {
+      return value;
+    },
   },
   // props: {
   //   users: {
@@ -93,6 +192,24 @@ export default defineComponent({
       required: false,
       type: Object,
     },
+    filter: {
+      required: true,
+      type: Object,
+    },
+  },
+  data() {
+    return {
+      headers: [
+        { title: "Nome", value: "name" },
+        { title: "E-mail", value: "email" },
+        { title: "Data de criação", value: "createdAt" },
+        {
+          title: "Ações",
+          value: "actions",
+          children: [],
+        },
+      ],
+    };
   },
   methods: {
     formatDate(date: Date) {
@@ -110,6 +227,9 @@ export default defineComponent({
     },
     callUpdatePassword(id: string) {
       this.$emit("callUpdatePassword", id);
+    },
+    callCreate(value: boolean) {
+      this.$emit("callCreate", value);
     },
     isMobile() {
       if (window.matchMedia("(max-width: 767px)").matches) {

@@ -1,20 +1,17 @@
 <template>
   <v-container fluid>
-    <div class="d-flex justify-space-between align-center pb-5">
-      <div class="text-h3">Usuários</div>
-      <v-btn append-icon="mdi-plus" color="primary" @click="callCreate">
-        Adicionar Usuário
-      </v-btn>
-    </div>
-
     <users-list
-      v-if="users && users.result"
+      v-if="users && users.result && !createUserForm"
       :users="users"
+      :filter="filter"
+      @callCreate="callCreate"
       @callUpdate="callUpdate"
       @callDelete="callDelete"
       @callUpdatePassword="callUpdatePassword"
       @onPageChange="onChangePage"
     />
+
+    <create-user-form v-if="createUserForm" />
 
     <create-user-modal
       v-if="showCreateModal"
@@ -31,18 +28,21 @@ import { defineComponent } from "vue";
 
 import UsersList from "@/components/users-components/UsersList.vue";
 import CreateUserModal from "@/components/users-components/CreateUserModal.vue";
+import CreateUserForm from "@/components/users-components/CreateUserForm.vue";
 
 export default defineComponent({
   name: "users",
   components: {
     UsersList,
     CreateUserModal,
+    CreateUserForm,
   },
   data() {
     return {
       showCreateModal: false,
       showUpdateModal: false,
       showDeleteModal: false,
+      createUserForm: false,
       showUpdatePasswordModal: false,
       selectedUser: "",
       filter: {
@@ -71,7 +71,8 @@ export default defineComponent({
       this.getAllUsers();
     },
     callCreate() {
-      this.showCreateModal = true;
+      // this.showCreateModal = true;
+      this.createUserForm = true;
     },
     callUpdate(id: string) {
       this.showUpdateModal = true;
